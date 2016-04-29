@@ -127,6 +127,7 @@ fs2_os_linux="no"
 fs2_os_osx="no"
 fs2_os_solaris="no"
 fs2_os_bsd="no"
+fs2_os_android="no"
 
 dnl case $host_os in
 case "$target" in
@@ -206,6 +207,25 @@ case "$target" in
 		LDFLAGS="$LDFLAGS -L/usr/local/lib"
 		CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 		;;
+	*arm-*-eabi)
+			# Android
+			echo "Using Android defines (for $host_os $host_cpu)"
+			echo "************************************************************"
+			echo "************************ NOTE ******************************"
+			echo "* Support for this OS is not actively maintatined. It ******"
+			echo "* should work but please provide feedback about builds and *"
+			echo "* play experience on this OS at ****************************"
+			echo "* http://www.hard-light.net/forums/index.php?board=113.0 ***"
+			echo "************************************************************"
+			fs2_os_android="yes"
+			if test "$host_cpu" = "arm"
+			then
+				D_CFLAGS=""
+			fi
+			D_CFLAGS="$D_CFLAGS -DHAVE_GLES -D__ANDROID__ -DANDROID"
+			LDFLAGS="$LDFLAGS -L/usr/local/lib"
+			CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+			;;
 	*)
 		# Unknown
 		echo "fs2_open does not support $host_cpu-$host_os"
@@ -275,9 +295,9 @@ else
 	AC_DEFINE([NDEBUG])
 	D_CFLAGS="$D_CFLAGS -O2 -Wall -funroll-loops"
 	D_CFLAGS="$D_CFLAGS -Wno-write-strings -Wno-unused-variable -Wno-unused-function"
-	
+
 	AC_C_COMPILE_FLAGS([-Wno-unused-but-set-variable])
-	
+
 	D_LDFLAGS="$D_LDFLAGS "
 
 	if test "$fs2_fred" = "yes" ; then
@@ -363,14 +383,14 @@ AC_CXX_IOS_BASE
 dnl Setup paths for lib and include dirs
 
 dnl SDL check
-if test "$fs2_os_linux" = "yes" || test "$fs2_os_bsd" = "yes" ; then
-	dnl Check for SDL 1.2.6+
-	SDL_VERSION=1.2.6
+if test "$fs2_os_linux" = "yes" || test "$fs2_os_bsd" = "yes" || test "$fs2_os_android" = "yes" ; then
+	dnl Check for SDL 2.0
+	SDL_VERSION=2.0.0
 	AM_PATH_SDL($SDL_VERSION,:,AC_MSG_ERROR([*** SDL >= $SDL_VERSION not found!]))
 elif test "$fs2_os_osx" = "yes" ; then
-	SDL_LIBS="-framework SDL"
-	dnl Check for SDL 1.2.6+
-	SDL_VERSION=1.2.6
+	SDL_LIBS="-framework SDL2"
+	dnl Check for SDL 2.0
+	SDL_VERSION=2.0.0
 	AM_PATH_SDL($SDL_VERSION,:,[AC_CHECK_HEADER(/Library/Frameworks/SDL.framework/Headers/SDL.h,
 		SDL_CFLAGS="-I/Library/Frameworks/SDL.framework/Headers",
 		[AC_CHECK_HEADER($HOME/Library/Frameworks/SDL.framework/Headers/SDL.h,
@@ -380,11 +400,11 @@ elif test "$fs2_os_osx" = "yes" ; then
 			AC_MSG_ERROR([*** Cannot find SDL which is required! ***]))])])])
 elif test "$fs2_os_solaris" = "yes" ; then
 	FS2_CXXFLAGS="$FS2_CXXFLAGS -I/usr/include/SDL"
-	FS2_LDFLAGS="$FS2_LDFLAGS -lpng -lpng12 -ljpeg -lpthread -logg -lSDL -ltheora -lopenal -lsocket -lvorbisfile -lvorbis -lnsl -lGL -lGLU"
+	FS2_LDFLAGS="$FS2_LDFLAGS -lpng -lpng12 -ljpeg -lpthread -logg -lSDL2 -ltheora -lopenal -lsocket -lvorbisfile -lvorbis -lnsl -lGL -lGLU"
 	## don't need the CFLAGS here if recent SDL is used
 fi
 
-dnl add SDL settings to our flags, only CFLAGS are default, libs are game specific
+dnl add SDL2 settings to our flags, only CFLAGS are default, libs are game specific
 D_CFLAGS=$D_CFLAGS" $SDL_CFLAGS"
 FS2_LIBS=$FS2_LIBS" $SDL_LIBS"
 

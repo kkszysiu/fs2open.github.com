@@ -1,11 +1,11 @@
 /*
  * Copyright (C) Volition, Inc. 1999.  All rights reserved.
  *
- * All source code herein is the property of Volition, Inc. You may not sell 
- * or otherwise commercially exploit the source or things you created based on the 
+ * All source code herein is the property of Volition, Inc. You may not sell
+ * or otherwise commercially exploit the source or things you created based on the
  * source.
  *
-*/ 
+*/
 
 
 
@@ -122,7 +122,7 @@ void mouse_init()
 				Mouse_mode = MOUSE_MODE_WIN;
 			else
 				Mouse_mode = MOUSE_MODE_DI;
-		} 
+		}
 	#else
 		Mouse_mode = MOUSE_MODE_WIN;
 	#endif
@@ -138,7 +138,7 @@ void mouse_init()
 	SDL_EventState( SDL_MOUSEBUTTONUP, SDL_ENABLE );
 #endif
 
-	LEAVE_CRITICAL_SECTION( mouse_lock );	
+	LEAVE_CRITICAL_SECTION( mouse_lock );
 
 	atexit( mouse_close );
 }
@@ -146,8 +146,8 @@ void mouse_init()
 
 // ----------------------------------------------------------------------------
 // mouse_mark_button() is called asynchronously by the OS when a mouse button
-// goes up or down.  The mouse button that is affected is passed via the 
-// flags parameter.  
+// goes up or down.  The mouse button that is affected is passed via the
+// flags parameter.
 //
 // parameters:   flags ==> mouse button pressed/released
 //               set   ==> 1 - button is pressed
@@ -230,7 +230,7 @@ void mouse_flush()
 	mouse_right_pressed = 0;
 	mouse_middle_pressed = 0;
 	mouse_flags = 0;
-	LEAVE_CRITICAL_SECTION( mouse_lock );	
+	LEAVE_CRITICAL_SECTION( mouse_lock );
 }
 
 int mouse_down_count(int n, int reset_count)
@@ -265,7 +265,7 @@ int mouse_down_count(int n, int reset_count)
 			break;
 	} // end switch
 
-	LEAVE_CRITICAL_SECTION( mouse_lock );	
+	LEAVE_CRITICAL_SECTION( mouse_lock );
 
 	return tmp;
 }
@@ -305,7 +305,7 @@ int mouse_up_count(int n)
 			break;
 	} // end switch
 
-	LEAVE_CRITICAL_SECTION( mouse_lock );	
+	LEAVE_CRITICAL_SECTION( mouse_lock );
 
 	return tmp;
 }
@@ -328,12 +328,12 @@ int mouse_down(int btn)
 	else
 		tmp = 0;
 
-	LEAVE_CRITICAL_SECTION( mouse_lock );	
+	LEAVE_CRITICAL_SECTION( mouse_lock );
 
 	return tmp;
 }
 
-// returns the fraction of time btn has been down since last call 
+// returns the fraction of time btn has been down since last call
 // (currently returns 1 if buttons is down, 0 otherwise)
 //
 float mouse_down_time(int btn)
@@ -565,7 +565,7 @@ int mouse_get_pos(int *xpos, int *ypos)
 	if (Mouse_y >= gr_screen.max_h){
  		Mouse_y = gr_screen.max_h - 1;
 	}
-	
+
 	if (xpos){
 		*xpos = Mouse_x;
 	}
@@ -596,7 +596,7 @@ void mouse_get_real_pos(int *mx, int *my)
 
 	POINT pnt;
 	getWindowMousePos(&pnt);
-	
+
 	*mx = pnt.x;
 	*my = pnt.y;
 }
@@ -654,9 +654,9 @@ int di_init()
 	DIPROPDWORD hdr;
 
 	// Turn on buffering
-	hdr.diph.dwSize = sizeof(DIPROPDWORD); 
+	hdr.diph.dwSize = sizeof(DIPROPDWORD);
 	hdr.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-	hdr.diph.dwObj = 0;		
+	hdr.diph.dwObj = 0;
 	hdr.diph.dwHow = DIPH_DEVICE;	// Apply to entire device
 	hdr.dwData = 16;	//MAX_BUFFERED_KEYBOARD_EVENTS;
 
@@ -729,6 +729,7 @@ void setWindowMousePos(POINT * pt)
 	ClientToScreen((HWND) os_get_window(), pt);
 	SetCursorPos(pt->x, pt->y);
 #else
-	SDL_WarpMouse(pt->x, pt->y);
+  SDL_WarpMouseInWindow(os_get_window(), pt->x, pt->y);
+	//SDL_WarpMouse(pt->x, pt->y);
 #endif
 }

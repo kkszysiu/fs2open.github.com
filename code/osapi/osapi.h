@@ -1,8 +1,8 @@
 /*
  * Copyright (C) Volition, Inc. 1999.  All rights reserved.
  *
- * All source code herein is the property of Volition, Inc. You may not sell 
- * or otherwise commercially exploit the source or things you created based on the 
+ * All source code herein is the property of Volition, Inc. You may not sell
+ * or otherwise commercially exploit the source or things you created based on the
  * source.
  *
 */
@@ -73,12 +73,14 @@ int os_foreground();
 
 // Returns the handle to the main window
 #ifdef _WIN32
-uint os_get_window(); 
+uint os_get_window();
+void os_set_window(uint new_handle);
 #else
-#define os_get_window() NULL
+SDL_Window* os_get_window();
+void os_set_window(SDL_Window* wnd);
+SDL_GLContext os_get_context();
+void os_set_context(SDL_GLContext ctx);
 #endif // _WIN32
-
-void os_set_window(uint new_handle);	 
 
 
 // process management --------------------------------------------------------------

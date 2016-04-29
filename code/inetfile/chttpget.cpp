@@ -1,8 +1,8 @@
 /*
  * Copyright (C) Volition, Inc. 1999.  All rights reserved.
  *
- * All source code herein is the property of Volition, Inc. You may not sell 
- * or otherwise commercially exploit the source or things you created based on the 
+ * All source code herein is the property of Volition, Inc. You may not sell
+ * or otherwise commercially exploit the source or things you created based on the
  * source.
  *
 */
@@ -179,7 +179,7 @@ void ChttpGet::GetFile(char *URL,char *localfile)
 #ifdef WIN32
 	if ( _beginthread(HTTPObjThread,0,this) == NULL )
 #else
-	if ( (thread_id = SDL_CreateThread(HTTPObjThread, this)) == NULL )
+	if ( (thread_id = SDL_CreateThread(HTTPObjThread, "GetFile", this)) == NULL )
 #endif
 	{
 		m_State = HTTP_STATE_INTERNAL_ERROR;
@@ -198,7 +198,7 @@ ChttpGet::~ChttpGet()
 #endif
 
 	fclose(LOCALFILE);
-    
+
 	if (m_DataSock != INVALID_SOCKET) {
 		shutdown(m_DataSock, 2);
 		closesocket(m_DataSock);
@@ -247,7 +247,7 @@ if (!p) return;
 		pcode = strchr(p,' ')+1;
 		if(!pcode)
 		{
-			m_State = HTTP_STATE_UNKNOWN_ERROR;	
+			m_State = HTTP_STATE_UNKNOWN_ERROR;
 			fclose(LOCALFILE);
 			return;
 
@@ -257,7 +257,7 @@ if (!p) return;
 
 		if(irsp == 0)
 		{
-			m_State = HTTP_STATE_UNKNOWN_ERROR;	
+			m_State = HTTP_STATE_UNKNOWN_ERROR;
 			fclose(LOCALFILE);
 			return;
 		}
@@ -269,7 +269,7 @@ if (!p) return;
 				p = GetHTTPLine();
 				if(p==NULL)
 				{
-					m_State = HTTP_STATE_UNKNOWN_ERROR;	
+					m_State = HTTP_STATE_UNKNOWN_ERROR;
 					fclose(LOCALFILE);
 					return;
 				}
@@ -323,15 +323,15 @@ int ChttpGet::ConnectSocket()
 	if(m_Aborting){
 		return 0;
 	}
-	
+
 	ip = inet_addr((const char *)m_szHost);
 
 	int rcode = 0;
 	if(ip==INADDR_NONE)
 	{
-		http_Asyncgethostbyname(&ip,NW_AGHBN_LOOKUP,m_szHost);		
+		http_Asyncgethostbyname(&ip,NW_AGHBN_LOOKUP,m_szHost);
 		do
-		{	
+		{
 			if(m_Aborting)
 			{
 				http_Asyncgethostbyname(&ip,NW_AGHBN_CANCEL,m_szHost);
@@ -342,7 +342,7 @@ int ChttpGet::ConnectSocket()
 			Sleep(1);
 		}while(rcode==0);
 	}
-	
+
 	if(rcode == -1)
 	{
 		m_State = HTTP_STATE_HOST_NOT_FOUND;
@@ -362,7 +362,7 @@ int ChttpGet::ConnectSocket()
 	{
 		hostaddr.sin_port = se->s_port;
 	}
-	hostaddr.sin_family = AF_INET;		
+	hostaddr.sin_family = AF_INET;
 	//ip = htonl(ip);
 	memcpy(&hostaddr.sin_addr, &ip, 4);
 
@@ -370,13 +370,13 @@ int ChttpGet::ConnectSocket()
 	{
 		//This is on a proxy, so we need to make sure to connect to the proxy machine
 		ip = inet_addr((const char *)m_ProxyIP);
-				
+
 		if(ip==INADDR_NONE)
 		{
 			http_Asyncgethostbyname(&ip,NW_AGHBN_LOOKUP,m_ProxyIP);
 			rcode = 0;
 			do
-			{	
+			{
 				if(m_Aborting)
 				{
 					http_Asyncgethostbyname(&ip,NW_AGHBN_CANCEL,m_ProxyIP);
@@ -386,8 +386,8 @@ int ChttpGet::ConnectSocket()
 
 				Sleep(1);
 			}while(rcode==0);
-			
-			
+
+
 			if(rcode == -1)
 			{
 				m_State = HTTP_STATE_HOST_NOT_FOUND;
@@ -401,10 +401,10 @@ int ChttpGet::ConnectSocket()
 		memcpy(&hostaddr.sin_addr,&ip,4);
 
 	}
-    
+
 	memset(&hostaddr.sin_zero, 0, sizeof(hostaddr.sin_zero));
 
-	//Now we will connect to the host					
+	//Now we will connect to the host
 	fd_set	wfds;
 
 	timeval timeout;
@@ -438,7 +438,7 @@ int ChttpGet::ConnectSocket()
 				break;
 
 			cerr = WSAGetLastError();
-	
+
 			if (cerr == WSAEISCONN) {
 				serr = 0;
 				break;
@@ -492,7 +492,7 @@ char *ChttpGet::GetHTTPLine()
 
 			Sleep(1);
 		}while(!gotdata);
-		
+
 		if(chunk[0]==0x0d)
 		{
 			//This should always read a 0x0a
@@ -501,7 +501,7 @@ char *ChttpGet::GetHTTPLine()
 				iBytesRead = recv(m_DataSock,chunk,1,0);
 
 				if(SOCKET_ERROR == iBytesRead)
-				{	
+				{
 					int error = WSAGetLastError();
 					if(WSAEWOULDBLOCK==error)
 					{
@@ -519,16 +519,16 @@ char *ChttpGet::GetHTTPLine()
 
 				Sleep(1);
 			}while(!gotdata);
-			igotcrlf = 1;	
+			igotcrlf = 1;
 		}
 		else
 		{	chunk[1] = '\0';
 			strcat_s(recv_buffer,chunk);
 		}
-		
+
 		Sleep(1);
 	}while(igotcrlf==0);
-	return recv_buffer;	
+	return recv_buffer;
 }
 
 uint ChttpGet::ReadDataChannel()
@@ -542,7 +542,7 @@ uint ChttpGet::ReadDataChannel()
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 500;
 
-	m_State = HTTP_STATE_RECEIVING;			
+	m_State = HTTP_STATE_RECEIVING;
 
 	do {
 		FD_ZERO(&wfds);
@@ -556,20 +556,20 @@ uint ChttpGet::ReadDataChannel()
 #else
 		select(m_DataSock+1, &wfds, NULL, NULL, &timeout);
 #endif
-	
-    	if (m_Aborting) {
-			fclose(LOCALFILE);
-			return 0;		
-		}
 
-		nBytesRecv = recv(m_DataSock, (char *)&sDataBuffer, sizeof(sDataBuffer), 0);
-	
     	if (m_Aborting) {
 			fclose(LOCALFILE);
 			return 0;
 		}
-	
-		if (SOCKET_ERROR == nBytesRecv) {	
+
+		nBytesRecv = recv(m_DataSock, (char *)&sDataBuffer, sizeof(sDataBuffer), 0);
+
+    	if (m_Aborting) {
+			fclose(LOCALFILE);
+			return 0;
+		}
+
+		if (SOCKET_ERROR == nBytesRecv) {
 			int error = WSAGetLastError();
 
 			if (error == WSAEWOULDBLOCK) {
@@ -584,14 +584,14 @@ uint ChttpGet::ReadDataChannel()
 			fwrite(sDataBuffer, nBytesRecv, 1, LOCALFILE);
 			//Write sDataBuffer, nBytesRecv
     	}
-		
+
 		Sleep(1);
 	} while (nBytesRecv > 0);
 
-	fclose(LOCALFILE);	
-	
+	fclose(LOCALFILE);
+
 	// Close the file and check for error returns.
-	if (nBytesRecv == SOCKET_ERROR) { 
+	if (nBytesRecv == SOCKET_ERROR) {
 		//Ok, we got a socket error -- xfer aborted?
 		m_State = HTTP_STATE_RECV_FAILED;
 		return 0;
@@ -601,7 +601,7 @@ uint ChttpGet::ReadDataChannel()
 		m_State = HTTP_STATE_FILE_RECEIVED;
 		return 1;
 	}
-}	
+}
 
 
 typedef struct _async_dns_lookup
@@ -624,7 +624,7 @@ int http_gethostbynameworker(void *parm);
 
 int http_Asyncgethostbyname(unsigned int *ip,int command, char *hostname)
 {
-	
+
 	if(command==NW_AGHBN_LOOKUP)
 	{
 		if(http_lastaslu)

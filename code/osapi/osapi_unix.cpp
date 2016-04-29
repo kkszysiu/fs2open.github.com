@@ -1,8 +1,8 @@
 /*
  * Copyright (C) Volition, Inc. 1999.  All rights reserved.
  *
- * All source code herein is the property of Volition, Inc. You may not sell 
- * or otherwise commercially exploit the source or things you created based on the 
+ * All source code herein is the property of Volition, Inc. You may not sell
+ * or otherwise commercially exploit the source or things you created based on the
  * source.
  *
 */
@@ -32,6 +32,9 @@
 // ----------------------------------------------------------------------------------------------------
 // OSAPI DEFINES/VARS
 //
+
+static SDL_Window*			appWindow = NULL;
+static SDL_GLContext    mainContext = NULL;
 
 // os-wide globals
 static int			fAppActive = 1;
@@ -73,9 +76,9 @@ void os_init(const char * wclass, const char * title, const char *app_name, cons
 		os_config_write_string(NULL, NOX("VideocardFs2open"), NOX("OGL -(1024x768)x32 bit"));
 
 	os_init_registry_stuff(Osreg_company_name, title, version_string);
-	
+
 	strcpy_s( szWinTitle, title );
-	strcpy_s( szWinClass, wclass );	
+	strcpy_s( szWinClass, wclass );
 
 	INITIALIZE_CRITICAL_SECTION( Os_lock );
 
@@ -92,7 +95,7 @@ void os_set_title( const char *title )
 {
 	strcpy_s( szWinTitle, title );
 
-	SDL_WM_SetCaption( szWinTitle, NULL );
+	SDL_SetWindowTitle( os_get_window(), szWinTitle );
 }
 
 extern void gr_opengl_shutdown();
@@ -116,12 +119,30 @@ int os_foreground()
 	return fAppActive;
 }
 
-// Returns the handle to the main window
-/*uint os_get_window()
+// Set the handle to the main window
+void os_set_window(SDL_Window* wnd)
 {
-	// not used
-	return 0;
-}*/
+ appWindow = wnd;
+}
+
+// Returns the handle to the main window
+SDL_Window* os_get_window()
+{
+	return appWindow;
+}
+
+// Set the handle to the main context
+void os_set_context(SDL_GLContext ctx)
+{
+	mainContext = ctx;
+}
+
+// Returns the handle to the main context
+SDL_GLContext os_get_context()
+{
+	return mainContext;
+}
+
 
 
 // process management -----------------------------------------------------------------
@@ -135,13 +156,13 @@ void os_sleep(int ms)
 // Used to stop message processing
 void os_suspend()
 {
-	ENTER_CRITICAL_SECTION( Os_lock );	
+	ENTER_CRITICAL_SECTION( Os_lock );
 }
 
 // resume message processing
 void os_resume()
 {
-	LEAVE_CRITICAL_SECTION( Os_lock );	
+	LEAVE_CRITICAL_SECTION( Os_lock );
 }
 
 
@@ -149,7 +170,7 @@ void os_resume()
 // OSAPI FORWARD DECLARATIONS
 //
 
-extern int SDLtoFS2[SDLK_LAST];
+extern uint SDLtoFS2[SDL_NUM_SCANCODES];
 extern void joy_set_button_state(int button, int state);
 extern void joy_set_hat_state(int position);
 
@@ -159,21 +180,36 @@ DWORD unix_process(DWORD lparam)
 
 	while( SDL_PollEvent(&event) ) {
 		switch(event.type) {
-			case SDL_ACTIVEEVENT:
-				if( (event.active.state & SDL_APPACTIVE) || (event.active.state & SDL_APPINPUTFOCUS) ) {
-					if (fAppActive != event.active.gain) {
-						if(!Cmdline_no_unfocus_pause)
-						{
-							if (fAppActive)
-								game_pause();
-							else
-								game_unpause();
-						}
-					}
-					fAppActive = event.active.gain;
-					gr_activate(fAppActive);
+			case SDL_WINDOWEVENT:
+				switch (event.window.event) {
+					case SDL_WINDOWEVENT_FOCUS_GAINED:
+						game_unpause();
+						break;
+					case SDL_WINDOWEVENT_ENTER:
+						game_unpause();
+						break;
+					case SDL_WINDOWEVENT_FOCUS_LOST:
+						game_pause();
+						break;
+					case SDL_WINDOWEVENT_LEAVE:
+						game_pause();
+						break;
 				}
-				break;
+
+				// if( (event.active.state & SDL_APPACTIVE) || (event.active.state & SDL_APPINPUTFOCUS) ) {
+				// 	if (fAppActive != event.active.gain) {
+				// 		if(!Cmdline_no_unfocus_pause)
+				// 		{
+				// 			if (fAppActive)
+				// 				game_pause();
+				// 			else
+				// 				game_unpause();
+				// 		}
+				// 	}
+				// 	fAppActive = event.active.gain;
+				// 	gr_activate(fAppActive);
+				// }
+				// break;
 
 			case SDL_KEYDOWN:
 				/*if( (event.key.keysym.mod & KMOD_ALT) && (event.key.keysym.sym == SDLK_RETURN) ) {
@@ -182,8 +218,8 @@ DWORD unix_process(DWORD lparam)
 					break;
 				}*/
 
-				if( SDLtoFS2[event.key.keysym.sym] ) {
-					key_mark( SDLtoFS2[event.key.keysym.sym], 1, 0 );
+				if( SDLtoFS2[event.key.keysym.scancode] ) {
+					key_mark( SDLtoFS2[event.key.keysym.scancode], 1, 0 );
 				}
 				break;
 
@@ -193,8 +229,9 @@ DWORD unix_process(DWORD lparam)
 					break;
 				}*/
 
-				if (SDLtoFS2[event.key.keysym.sym]) {
-					key_mark( SDLtoFS2[event.key.keysym.sym], 0, 0 );
+				// SDL_GetKeyName
+				if (SDLtoFS2[event.key.keysym.scancode]) {
+					key_mark( SDLtoFS2[event.key.keysym.scancode], 0, 0 );
 				}
 				break;
 
@@ -230,6 +267,12 @@ DWORD unix_process(DWORD lparam)
 void os_deinit()
 {
 	DELETE_CRITICAL_SECTION( Os_lock );
+
+	if ( mainContext != NULL )
+		SDL_GL_DeleteContext(os_get_context());
+
+	if ( appWindow != NULL )
+		SDL_DestroyWindow(os_get_window());
 
 	SDL_Quit();
 }
