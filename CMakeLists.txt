@@ -48,10 +48,10 @@ if(CCACHE_PROGRAM AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
 endif()
 
-IF(CMAKE_CROSSCOMPILING)
-	SET(IMPORT_EXE_DIR "IMPORT_EXE_DIR-NOTFOUND" CACHE FILEPATH "Required for a cross compiling build, point to binary directory of a cmake build for the real OS")
-	INCLUDE(${IMPORT_EXE_DIR}/ImportExecutables.cmake)
-ENDIF(CMAKE_CROSSCOMPILING)
+# IF(CMAKE_CROSSCOMPILING)
+# 	SET(IMPORT_EXE_DIR "IMPORT_EXE_DIR-NOTFOUND" CACHE FILEPATH "Required for a cross compiling build, point to binary directory of a cmake build for the real OS")
+# 	INCLUDE(${IMPORT_EXE_DIR}/ImportExecutables.cmake)
+# ENDIF(CMAKE_CROSSCOMPILING)
 
 # Check if the external modules exists
 IF(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/external/rpavlik-cmake-modules/launcher-templates")
@@ -185,7 +185,9 @@ ENDIF(MSVC_USE_RUNTIME_DLL)
 
 include(package)
 
+IF (NOT ANDROID)
 include(doxygen)
+ENDIF()
 
 # Print used options to log
 IF (WIN32)

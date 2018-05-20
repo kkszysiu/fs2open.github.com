@@ -47,6 +47,25 @@ IF(PLATFORM_WINDOWS)
     target_link_libraries(ffmpeg INTERFACE avutil)
     target_link_libraries(ffmpeg INTERFACE swscale)
     target_link_libraries(ffmpeg INTERFACE swresample)
+ELSEIF(ANDROID)
+    # libavutil
+    # /Users/kkszysiu/Projects/Games/fs2open.github.com2/lib/android
+
+	ADD_IMPORTED_LIB(avutil "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libavutil.so")
+	ADD_IMPORTED_LIB(avcodec "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libavcodec.so")
+    ADD_IMPORTED_LIB(avfilter "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libavfilter.so")
+    ADD_IMPORTED_LIB(avformat "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libavformat.so")
+    ADD_IMPORTED_LIB(swresample "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libswresample.so")
+    ADD_IMPORTED_LIB(swscale "${CMAKE_CURRENT_LIST_DIR}/../android/headers/" "${CMAKE_CURRENT_LIST_DIR}/../lib/android/libs-android/armeabi-v7a/libswscale.so")
+
+    add_library(ffmpeg INTERFACE)
+    target_link_libraries(ffmpeg INTERFACE avutil)
+    target_link_libraries(ffmpeg INTERFACE avcodec)
+    target_link_libraries(ffmpeg INTERFACE avfilter)
+    target_link_libraries(ffmpeg INTERFACE avformat)
+    target_link_libraries(ffmpeg INTERFACE swresample)
+    target_link_libraries(ffmpeg INTERFACE swscale)
+
 ELSE(WIN32)
     option(FFMPEG_USE_PRECOMPILED "Use precompiled version of FFmpeg. If disabled the system libraries will be used." OFF)
 

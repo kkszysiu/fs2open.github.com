@@ -24,9 +24,16 @@
 #endif
 
 #ifdef SCP_UNIX
-#include <glob.h>
 #include <sys/mman.h>
+
+#ifdef SCP_ANDROID
+#include "android/glob.h"
+#else // SCP_ANDROID
+#include <glob.h>
+#endif // SCP_ANDROID
+
 #endif
+
 
 #include "cfile/cfile.h"
 #include "cfile/cfilearchive.h"

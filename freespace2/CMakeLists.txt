@@ -19,7 +19,11 @@ IF(MSVC60)
 	link_directories(${STLPORT_INCLUDE_LIB_DIRS})
 ENDIF(MSVC60)
 
+IF(NOT ANDROID)
 ADD_EXECUTABLE(Freespace2 ${EXE_GUI_TYPE} ${FREESPACE_SRC})
+ELSE()
+ADD_LIBRARY(Freespace2 SHARED ${FREESPACE_SRC})
+ENDIF()
 
 include(resources.cmake)
 
@@ -46,6 +50,7 @@ IF(USE_STLPORT)
 ENDIF(USE_STLPORT)
 
 # Add install script to copy the executable to the FreeSpace path if possible and wanted
+IF(NOT ANDROID)
 INSTALL(
 	TARGETS Freespace2
 	RUNTIME DESTINATION ${BINARY_DESTINATION}
@@ -58,6 +63,7 @@ if (FSO_INSTALL_DEBUG_FILES)
 				OPTIONAL)
 	endif()
 endif()
+ENDIF()
 
 enable_clang_tidy(Freespace2)
 

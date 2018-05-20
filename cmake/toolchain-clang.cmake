@@ -8,8 +8,8 @@ option(CLANG_ENABLE_LEAK_CHECK "Enable -fsanitize=leak" OFF)
 option(CLANG_ENABLE_ADDRESS_SANITIZER "Enable -fsanitize=address" OFF)
 
 # These are the default values
-set(C_BASE_FLAGS "-march=native -pipe")
-set(CXX_BASE_FLAGS "-march=native -pipe")
+# set(C_BASE_FLAGS "-march=native -pipe")
+# set(CXX_BASE_FLAGS "-march=native -pipe")
 
 # For C and C++, the values can be overwritten independently
 if(DEFINED ENV{CXXFLAGS})

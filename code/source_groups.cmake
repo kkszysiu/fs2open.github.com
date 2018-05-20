@@ -1284,6 +1284,15 @@ IF(UNIX)
 	)
 ENDIF(UNIX)
 
+SET(file_root_android
+)
+
+IF(ANDROID)
+	SET(file_root_android
+		android/glob.c
+	)
+ENDIF(ANDROID)
+
 # the source groups
 source_group(""                                   FILES ${file_root})
 source_group("AI"                                 FILES ${file_root_ai})
@@ -1382,6 +1391,7 @@ source_group("Utils"                              FILES ${file_root_utils})
 source_group("Utils\\boost"                       FILES ${file_root_utils_boost})
 source_group("Weapon"                             FILES ${file_root_weapon})
 source_group("Windows Stubs"                      FILES ${file_root_windows_stubs})
+source_group("Android"							  FILES ${file_root_android})
 
 # append all files to the file_root
 set (file_root
@@ -1482,4 +1492,5 @@ set (file_root
 	${file_root_utils_boost}
 	${file_root_weapon}
 	${file_root_windows_stubs}
+	${file_root_android}
 )

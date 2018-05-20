@@ -10,8 +10,8 @@ option(GCC_ENABLE_ADDRESS_SANITIZER "Enable -fsanitize=address" OFF)
 option(GCC_ENABLE_SANITIZE_UNDEFINED "Enable -fsanitize=undefined" OFF)
 
 # These are the default values
-set(C_BASE_FLAGS "-march=native -pipe")
-set(CXX_BASE_FLAGS "-march=native -pipe")
+# set(C_BASE_FLAGS "-march=native -pipe")
+# set(CXX_BASE_FLAGS "-march=native -pipe")
 
 # For C and C++, the values can be overwritten independently
 if(DEFINED ENV{CFLAGS})

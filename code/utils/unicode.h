@@ -9,9 +9,11 @@
 
 #include <utf8.h>
 
+#if !defined(ANDROID)
 #if !HAVE_CHAR32_T
 // Older compilers don't have this as a built-in type so we define it for those
 typedef std::uint_least32_t char32_t;
+#endif
 #endif
 
 #if !HAVE_UNICODE_CHAR_LITERAL

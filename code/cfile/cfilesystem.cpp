@@ -24,13 +24,19 @@
 #endif
 
 #ifdef SCP_UNIX
-#include <glob.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
+
+#ifdef SCP_ANDROID
+#include "android/glob.h"
+#else // SCP_ANDROID
+#include <glob.h>
+#endif // SCP_ANDROID
+
 #endif
 
 #include "cfile/cfile.h"
